@@ -1,0 +1,32 @@
+{
+  "name": "lazyloading",
+  "version": "1.0.0",
+  "description": "Lazy Loading",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kunal Jog",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "connect-busboy": "0.0.2",
+    "cors": "^2.8.5",
+    "csv-parser": "^2.3.3",
+    "csvtojson": "^2.0.10",
+    "express": "^4.17.1",
+    "express-fileupload": "^1.1.10",
+    "fast-csv": "^4.3.1",
+    "firebase": "^8.3.3",
+    "firebase-admin": "^9.6.0",
+    "firestore-export-import": "^0.14.0",
+    "multer": "^1.4.2",
+    "multipart": "^0.1.5",
+    "multiparty": "^4.2.2",
+    "nodemon": "^2.0.4",
+    "pg": "^8.5.1",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^6.6.2",
+    "ws": "^7.1.2"
+  }
+}
