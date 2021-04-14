@@ -11,39 +11,24 @@
         integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns"
         crossorigin="anonymous"></script>
 
+    <link rel="stylesheet" href="style.css">
+    <script src="countries.js"></script>
+
 </head>
 
-<style>
-    #table-container {
-        height: 500px;
-        overflow: auto;
-    }
-
-    #table-container thead th {
-        position: sticky;
-        top: 0;
-        z-index: 1;
-    }
-
-    table {
-        border-collapse: collapse;
-        width: 100%;
-    }
-
-    th,
-    td {
-        padding: 10px 16px;
-    }
-
-    th {
-        background: #eee;
-    }
-</style>
-
 <body>
+
     <div class="container">
         <div class="alert alert-primary" role="alert">
-            <h4>Infinite Scroll for Table in JQuery</h4>
+            <h4>Implementation of Infinite Scroll for Table with Search Bar</h4>
+        </div>
+
+        <div class="input-group mb-3">
+            <!-- <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon2">Search</span>
+            </div> -->
+            <input type="text" class="form-control search" placeholder="Enter the text to search (Min 2 characters)"
+                aria-label="Enter the text to search (Min 2 characters)" aria-describedby="basic-addon2">
         </div>
 
         <div id="table-container">
@@ -68,67 +53,27 @@
 </html>
 
 <script>
+
     $(document).ready(function () {
 
-        const limit = 50;
+        let limit = 20;
         let offset = 0;
         let isDataAvailable = 0;
+        let obj = new Countries(limit, offset, isDataAvailable, "");
 
-        $("#table-container").scroll(function () {
-            onScrollEvent();
+        $("#table-container").scroll(function (e) {
+            obj.onScrollEvent();
         });
 
-        function getCountriesList(limit, offset) {
-            $.ajax({
-                url: "http://localhost:8085/getData",
-                method: "POST",
-                data: {
-                    limit: limit,
-                    offset: offset
-                },
-                cache: false,
-                success: function (response) {
+        $(".search").on("keyup", function (e) {
+            obj.onSearch(e.currentTarget.value);
+        });
 
-                    generateData(response);
-
-                    if (!response.data.length) {
-                        $('#loading-msg').html("");
-                        isDataAvailable = 1;
-                    }
-                    else {
-                        $('#loading-msg').html(`<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>`);
-                        isDataAvailable = 0;
-                    }
-                }
-            });
-        }
-
-        if (!isDataAvailable) {
-            isDataAvailable = 1;
-            getCountriesList(limit, offset);
-        }
-
-        function generateData(response) {
-            let ele = "";
-            response.data.forEach((value, index) => {
-                ele = `<tr>                
-                <td>${$.trim(value.id)}</td>
-                <td>${$.trim(value.sortname)}</td>
-                <td>${$.trim(value.name)}</td>                
-                <td>${$.trim(value.phonecode)}</td>
-                </tr>`;
-                $("#rows-data").append(ele);
-            });
-        }
-
-        function onScrollEvent() {
-            if (!isDataAvailable) {
-                isDataAvailable = 1;
-                offset = offset + limit;
-                setTimeout(function () {
-                    getCountriesList(limit, offset);
-                }, 1500);
-            }
-        }
     });
+
+    (function ($) {
+        $.fn.hasScrollBar = function () {
+            return this.get(0).scrollHeight > this.height();
+        }
+    })(jQuery);
 </script>

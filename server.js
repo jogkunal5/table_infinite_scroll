@@ -5,7 +5,7 @@ const express = require('express');
 const app = express();
 const busboy = require('connect-busboy');
 const bodyParser = require('body-parser');
-const { Sequelize, DataTypes } = require('sequelize');
+const { Sequelize, DataTypes, Op } = require('sequelize');
 const sequelize = new Sequelize('postgres://postgres:root@localhost:5432/postgres');
 
 sequelize.authenticate().then(() => {
@@ -46,19 +46,72 @@ const Countries = sequelize.define('countries', {
 		timestamps: false
 	});
 
-app.post('/getData', function (req, res) {	
+app.post('/getData', function (req, res) {
+
+	let search = !req.body.search ? "" : req.body.search.toLowerCase();
+
 	try {
-		Countries.findAll({
-			limit: 50,
-			offset: parseInt(req.body.offset)
-		}).then((data) => {
-			return res.status(200).json({ status: 200, data: JSON.parse(JSON.stringify(data)), message: "Success" });
+		countRecords(search).then(result => {
+			console.log("\n\nTotal Records: ", result.count + "\n\n");
+			getRecords(req, search).then((data) => {
+				return res.status(200).json({
+					status: 200,
+					count: result.count,
+					data: JSON.parse(JSON.stringify(data)),
+					message: "Success"
+				});
+			});
 		});
 	} catch (e) {
 		return res.status(400).json({ status: 400, data: e, message: "No Data Found" });
 	}
 
 });
+
+function getRecords(req, search) {
+	return Countries.findAll({
+		where: {
+			[Op.or]: [
+				{
+					name: {
+						[Op.iLike]: '%' + search + '%'
+					}
+				},
+				// {
+				// 	phonecode: {
+				// 		[Op.like]: '%' + search + '%'
+				// 	}
+				// },
+				{
+					sortname: {
+						[Op.like]: '%' + search + '%'
+					}
+				}
+			]
+		},
+		limit: parseInt(req.body.limit),
+		offset: parseInt(req.body.offset)
+	})
+}
+
+function countRecords(search) {
+	return Countries.findAndCountAll({
+		where: {
+			[Op.or]: [
+				{
+					name: {
+						[Op.iLike]: '%' + search + '%'
+					}
+				},
+				{
+					sortname: {
+						[Op.like]: '%' + search + '%'
+					}
+				}
+			]
+		}
+	})
+}
 
 // Start server
 function startServer() {
